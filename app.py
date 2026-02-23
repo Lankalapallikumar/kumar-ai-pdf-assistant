@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import tempfile, os
 from dotenv import load_dotenv
@@ -11,37 +10,97 @@ load_dotenv()
 st.set_page_config(
     page_title=config.app_title,
     page_icon=config.app_icon,
-    layout=config.layout
+    layout="wide"
 )
 
-# ── Styling ──────────────────────────────────────────────
+# ───────────────────────── UI STYLE ───────────────────────── #
+
 st.markdown("""
 <style>
-    .main-header { font-size: 2.2rem; font-weight: 700; color: #1a56db; }
-    .sub-header  { font-size: 1rem; color: #6b7280; margin-bottom: 1.5rem; }
-    .stat-box    { background: #f0f4ff; border-radius: 10px; padding: 1rem; text-align: center; }
-    .footer      { text-align: center; color: #9ca3af; font-size: 0.8rem; margin-top: 2rem; }
+body {
+    background: linear-gradient(135deg,#0f172a,#020617);
+}
+
+.main-header {
+    font-size:2.5rem;
+    font-weight:800;
+    background: linear-gradient(90deg,#38bdf8,#a78bfa,#f472b6);
+    -webkit-background-clip:text;
+    color:transparent;
+    text-align:center;
+}
+
+.sub-header {
+    color:#c7d2fe;
+    text-align:center;
+    margin-bottom:2rem;
+}
+
+.stat-box {
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:18px;
+    padding:1.2rem;
+    text-align:center;
+    backdrop-filter: blur(12px);
+    box-shadow:0 0 25px rgba(56,189,248,0.15);
+    transition: 0.3s;
+}
+.stat-box:hover {
+    transform:scale(1.05);
+}
+
+.stChatMessage.user {
+    background:#1e293b;
+    border-radius:16px;
+    padding:12px;
+}
+
+.stChatMessage.assistant {
+    background:#020617;
+    border-radius:16px;
+    padding:12px;
+    border:1px solid #312e81;
+}
+
+.sidebar .block-container {
+    background: linear-gradient(180deg,#020617,#0f172a);
+}
+
+button[kind="primary"] {
+    background: linear-gradient(90deg,#38bdf8,#818cf8);
+    border-radius:12px;
+}
+
+.footer {
+    text-align:center;
+    color:#94a3b8;
+    font-size:0.8rem;
+    margin-top:3rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ── Header ────────────────────────────────────────────────
-st.markdown(f'<p class="main-header">{config.app_title}</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="sub-header">{config.app_description}</p>', unsafe_allow_html=True)
+# ───────────────────────── HEADER ───────────────────────── #
 
-# ── Session State ─────────────────────────────────────────
+st.markdown(f"<p class='main-header'>{config.app_title}</p>", unsafe_allow_html=True)
+st.markdown(f"<p class='sub-header'>{config.app_description}</p>", unsafe_allow_html=True)
+
+# ───────────────────────── SESSION STATE ───────────────────────── #
+
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []      # list of LangChain messages
+    st.session_state.chat_history = []
 if "display_history" not in st.session_state:
-    st.session_state.display_history = []   # list of dicts for display
+    st.session_state.display_history = []
 if "chain" not in st.session_state:
     st.session_state.chain = None
 if "chunk_count" not in st.session_state:
     st.session_state.chunk_count = 0
 
-# ── Sidebar ───────────────────────────────────────────────
+# ───────────────────────── SIDEBAR ───────────────────────── #
+
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/pdf.png", width=60)
-    st.header("Upload Document")
+    st.header("📄 Upload PDF")
 
     uploaded_file = st.file_uploader(
         f"Choose a PDF (max {config.max_file_size_mb}MB)",
@@ -53,7 +112,7 @@ with st.sidebar:
         if file_mb > config.max_file_size_mb:
             st.error(f"File too large! Max size is {config.max_file_size_mb}MB.")
         elif st.button("⚡ Process PDF", type="primary", use_container_width=True):
-            with st.spinner("Indexing your document..."):
+            with st.spinner("Indexing document..."):
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
                     f.write(uploaded_file.read())
                     tmp_path = f.name
@@ -72,7 +131,7 @@ with st.sidebar:
     st.markdown("---")
 
     if st.session_state.chain:
-        st.markdown("**📊 Session Stats**")
+        st.markdown("### 📊 Session Stats")
         col1, col2 = st.columns(2)
         col1.metric("Chunks", st.session_state.chunk_count)
         col2.metric("Messages", len(st.session_state.display_history))
@@ -84,7 +143,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(f"""
-    **⚙️ Model Config**  
+    **⚙️ Model Info**  
     🤖 `{config.llm_model}`  
     🌡️ Temp: `{config.llm_temperature}`  
     🔍 Top-K: `{config.retriever_k}`
@@ -92,14 +151,15 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(f"""
-    <div style='font-size:0.8rem; color:#6b7280'>
+    <div style='font-size:0.8rem; color:#94a3b8'>
     Built by <b>{config.author_name}</b><br>
     <a href='{config.github_url}' target='_blank'>GitHub</a> · 
     <a href='{config.linkedin_url}' target='_blank'>LinkedIn</a>
     </div>
     """, unsafe_allow_html=True)
 
-# ── Main Chat Area ────────────────────────────────────────
+# ───────────────────────── MAIN AREA ───────────────────────── #
+
 if not st.session_state.chain:
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -108,9 +168,11 @@ if not st.session_state.chain:
         st.markdown('<div class="stat-box">🔍<br><b>RAG Pipeline</b><br><small>LangChain</small></div>', unsafe_allow_html=True)
     with col3:
         st.markdown('<div class="stat-box">💰<br><b>100% Free</b><br><small>No cost to run</small></div>', unsafe_allow_html=True)
-    st.info("👈 Upload a PDF from the sidebar to start chatting with your document!")
+
+    st.info("👈 Upload a PDF from the sidebar to start chatting!")
+
 else:
-    # Display chat history
+    # Display history
     for msg in st.session_state.display_history:
         with st.chat_message(msg["role"]):
             st.write(msg["content"])
@@ -123,12 +185,10 @@ else:
 
     # Chat input
     if question := st.chat_input("Ask anything about your document..."):
-        # Show user message
         st.session_state.display_history.append({"role": "user", "content": question})
         with st.chat_message("user"):
             st.write(question)
 
-        # Get answer
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 result = st.session_state.chain.invoke({
@@ -147,19 +207,20 @@ else:
                         st.caption(src.page_content[:400] + "...")
                         st.divider()
 
-        # Update histories
         st.session_state.chat_history.extend([
             HumanMessage(content=question),
             AIMessage(content=answer)
         ])
+
         st.session_state.display_history.append({
             "role": "assistant",
             "content": answer,
             "sources": sources
         })
 
-# ── Footer ─────────────────────────────────────────────────
+# ───────────────────────── FOOTER ───────────────────────── #
+
 st.markdown(
-    f'<div class="footer">AI Study Assistant · Built by {config.author_name} · Powered by LangChain, Groq & Streamlit</div>',
+    f"<div class='footer'>AI Study Assistant · Built by {config.author_name} · Powered by LangChain, Groq & Streamlit</div>",
     unsafe_allow_html=True
 )

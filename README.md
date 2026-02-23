@@ -1,117 +1,97 @@
 ---
-title: AI Study Assistant
-emoji: 📚
-colorFrom: blue
-colorTo: indigo
+title: Kumar AI PDF Chat
+emoji: 🤖
+colorFrom: purple
+colorTo: blue
 sdk: docker
 app_file: app.py
 pinned: false
 ---
-# 📚 AI Study Assistant
 
-> Chat with any PDF using RAG + LLaMA 3.1 — 100% free to run.
+# 🤖 Kumar AI Study Assistant
+
+> Conversational AI that lets you chat with any PDF using Retrieval-Augmented Generation (RAG) + LLaMA 3.1.
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
-![LangChain](https://img.shields.io/badge/LangChain-0.2-green)
+![LangChain](https://img.shields.io/badge/LangChain-RAG-green)
 ![Groq](https://img.shields.io/badge/Groq-LLaMA3.1-orange)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.35-red)
+![Streamlit](https://img.shields.io/badge/Streamlit-WebApp-red)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-## 🎯 What It Does
+---
 
-Upload any PDF — textbook, research paper, notes — and ask questions in plain English. The app uses Retrieval-Augmented Generation (RAG) to find the most relevant sections and answer accurately with source references.
+## 🚀 Overview
 
-## 🏗️ Architecture
-```
-PDF → PyPDF Loader → Text Splitter → HuggingFace Embeddings
-                                           ↓
-User Question → History-Aware Retriever → FAISS Vector Store
-                        ↓
-              LLaMA 3.1 8B (via Groq) → Answer + Sources
-```
+Kumar AI Study Assistant allows users to upload any PDF (textbooks, notes, research papers) and interact with it through a conversational AI interface.
 
-## 🚀 Quick Start
+Instead of manually searching documents, the system retrieves the most relevant sections using vector search and generates accurate, context-aware answers using LLaMA 3.1.
 
-### 1. Clone the repo
-```bash
-git clone https://github.com/Dhayanidhi-96/ai-study-assistant
-cd ai-study-assistant
-```
+This project demonstrates a complete **Conversational RAG pipeline**.
 
-### 2. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+---
 
-### 3. Set up environment
-```bash
-cp .env.example .env
-# Add your Groq API key to .env
-```
+## 🧠 How It Works
+PDF Upload
+↓
+Text Splitting (Chunking)
+↓
+Embedding Generation
+↓
+FAISS Vector Store
+↓
+User Question
+↓
+Top-K Semantic Retrieval
+↓
+LLaMA 3.1 (via Groq)
+↓
+Answer + Source References
 
-Get your free Groq API key at: https://console.groq.com
+---
 
-### 4. Run locally
-```bash
-streamlit run app.py
-```
+## ✨ Key Features
 
-## 🐳 Run with Docker
-```bash
-# Build and run
-docker-compose up --build
+- 📄 Upload any PDF
+- 💬 Continuous conversational chat
+- 🔍 Semantic Top-K retrieval
+- 📚 Source citation preview
+- ⚡ Fast inference using Groq
+- 🎨 Modern Streamlit UI
+- 🐳 Docker-ready
+- ☁️ Hugging Face Spaces compatible
+- 🧠 Chat memory support
 
-# Stop
-docker-compose down
-```
-
-Open http://localhost:7860
-
-## ☁️ Deploy on Hugging Face Spaces (Free)
-
-1. Go to [huggingface.co/spaces](https://huggingface.co/spaces)
-2. Click **Create new Space**
-3. Settings:
-   - **Name:** ai-study-assistant
-   - **SDK:** Docker
-   - **Visibility:** Public
-4. Push your code:
-```bash
-git remote add space https://huggingface.co/spaces/YOUR_USERNAME/ai-study-assistant
-git push space main
-```
-5. Go to **Settings → Repository Secrets** → Add `GROQ_API_KEY`
-6. Your app is live! 🎉
+---
 
 ## ⚙️ Configuration
 
-All settings are in `config.py` — no need to touch core logic:
+All major settings are configurable in `config.py`:
 
-| Setting | Default | Description |
-|--------|---------|-------------|
-| `llm_model` | `llama-3.1-8b-instant` | Groq model to use |
-| `llm_temperature` | `0.3` | Response creativity |
-| `chunk_size` | `1000` | PDF chunk size |
-| `retriever_k` | `4` | Chunks retrieved per query |
-| `max_file_size_mb` | `10` | Max PDF upload size |
+| Parameter | Description |
+|----------|-------------|
+| `llm_model` | LLaMA model version |
+| `llm_temperature` | Controls creativity |
+| `chunk_size` | PDF text chunk size |
+| `chunk_overlap` | Overlap between chunks |
+| `retriever_k` | Number of retrieved chunks |
+| `max_file_size_mb` | Upload size limit |
 
-## 🛠️ Tech Stack
+---
+
+## 🛠 Tech Stack
 
 | Tool | Purpose |
 |------|---------|
-| LangChain | RAG pipeline & chains |
-| Groq API | Fast LLM inference (free tier) |
-| LLaMA 3.1 8B | Language model |
-| HuggingFace Embeddings | Text embeddings (free, local) |
+| LangChain | RAG orchestration |
 | FAISS | Vector similarity search |
+| HuggingFace Embeddings | Text embeddings |
+| Groq API | LLaMA 3.1 inference |
 | Streamlit | Web UI |
-| Docker | Containerization |
+| Docker | Containerized deployment |
 
-## 👤 Author
+---
 
-**Dhayanidhi P** — Final Year Data Science & AI Student  
-[GitHub](https://github.com/Dhayanidhi-96) · [LinkedIn](https://www.linkedin.com/in/dhayanidhi-p-3372b0291)
+## ▶️ Run Locally (Docker)
 
-## 📄 License
-
-MIT License — free to use, modify and distribute.
+```bash
+docker-compose up --build
