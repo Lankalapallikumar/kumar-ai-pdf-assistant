@@ -4,11 +4,6 @@ from dotenv import load_dotenv
 from core_rag import build_rag_chain
 from config import config
 from langchain_core.messages import HumanMessage, AIMessage
-import os
-import streamlit as st
-
-st.write("HF GROQ KEY PRESENT:", bool(os.getenv("GROQ_API_KEY")))
-
 load_dotenv()
 
 st.set_page_config(

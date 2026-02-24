@@ -1,17 +1,10 @@
 # core_rag.py
 
 import os
-from dotenv import load_dotenv
-
-# Force-load environment variables (works locally + Hugging Face)
-load_dotenv(override=True)
-
-# Debug print (you can remove later)
-print("HF GROQ KEY FOUND:", bool(os.getenv("GROQ_API_KEY")))
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 
@@ -39,18 +32,16 @@ def build_rag_chain(file_path: str):
     chunks = splitter.split_documents(docs)
 
     # 3️⃣ Create embeddings + FAISS vector store
-    embeddings = HuggingFaceBgeEmbeddings(
+    embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
     vectorstore = FAISS.from_documents(chunks, embeddings)
 
-    # Top-K retrieval (k = 2 as you set)
+    # Top-K retrieval
     retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
 
-    # 4️⃣ Initialize Groq LLaMA
-    # IMPORTANT: Do NOT pass groq_api_key manually
-    # Groq SDK reads GROQ_API_KEY automatically from env
+    # 4️⃣ Initialize Groq LLaMA (reads GROQ_API_KEY automatically)
     llm = ChatGroq(
         model="llama-3.1-8b-instant",
         temperature=0.25
